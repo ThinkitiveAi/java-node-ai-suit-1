@@ -1,0 +1,419 @@
+{
+	"info": {
+		"_postman_id": "health-first-patient-api",
+		"name": "Health First Patient API",
+		"description": "Complete API collection for healthcare patient registration, authentication, and onboarding",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phone_number\": \"+12345678902\",\n  \"password\": \"StrongPassw0rd!\",\n  \"confirm_password\": \"StrongPassw0rd!\",\n  \"date_of_birth\": \"1990-05-15\",\n  \"gender\": \"female\",\n  \"blood_type\": \"O+\",\n  \"height\": 165,\n  \"weight\": 60,\n  \"address\": {\n    \"street\": \"456 Oak St\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zip\": \"90210\"\n  },\n  \"preferred_language\": \"English\",\n  \"emergency_contact\": {\n    \"name\": \"John Smith\",\n    \"relationship\": \"Spouse\",\n    \"phone\": \"+12345678903\",\n    \"email\": \"john.smith@example.com\"\n  },\n  \"insurance\": {\n    \"provider\": \"Blue Cross Blue Shield\",\n    \"policy_number\": \"BCBS123456\",\n    \"group_number\": \"GRP789012\",\n    \"expiry_date\": \"2024-12-31\"\n  },\n  \"medical_history\": {\n    \"conditions\": [\n      {\n        \"condition\": \"Hypertension\",\n        \"diagnosis_date\": \"2020-03-15\",\n        \"is_active\": true,\n        \"notes\": \"Controlled with medication\"\n      }\n    ],\n    \"medications\": [\n      {\n        \"name\": \"Lisinopril\",\n        \"dosage\": \"10mg\",\n        \"frequency\": \"daily\",\n        \"start_date\": \"2020-03-20\",\n        \"is_active\": true\n      }\n    ],\n    \"allergies\": [\n      {\n        \"allergen\": \"Penicillin\",\n        \"reaction\": \"Rash\",\n        \"severity\": \"moderate\"\n      }\n    ]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jane.smith@example.com\",\n  \"password\": \"StrongPassw0rd!\",\n  \"remember_me\": true,\n  \"device_info\": {\n    \"device_name\": \"Postman\",\n    \"device_type\": \"desktop\",\n    \"browser\": \"Postman\",\n    \"os\": \"Windows\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/refresh-token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"refresh-token"
+							]
+						}
+					}
+				},
+				{
+					"name": "Logout Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/patient/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"logout"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Email Verification",
+			"item": [
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"your-verification-token\",\n  \"email\": \"jane.smith@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/verify-email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"verify-email"
+							]
+						}
+					}
+				},
+				{
+					"name": "Resend Verification Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jane.smith@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/resend-verification",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"resend-verification"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Onboarding",
+			"item": [
+				{
+					"name": "Get Onboarding Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/patient/onboarding/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"onboarding",
+								"status"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Patient Management",
+			"item": [
+				{
+					"name": "Get All Patients",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/patient?page=1&limit=10&verification_status=verified&onboarding_status=completed&search=jane",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "verification_status",
+									"value": "verified"
+								},
+								{
+									"key": "onboarding_status",
+									"value": "completed"
+								},
+								{
+									"key": "search",
+									"value": "jane"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Patient by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/patient/{{patient_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"{{patient_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Patient",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Jane Updated\",\n  \"weight\": 62,\n  \"address\": {\n    \"street\": \"789 Updated Ave\",\n    \"city\": \"San Francisco\",\n    \"state\": \"CA\",\n    \"zip\": \"94102\"\n  },\n  \"emergency_contact\": {\n    \"name\": \"John Smith Updated\",\n    \"relationship\": \"Spouse\",\n    \"phone\": \"+12345678904\",\n    \"email\": \"john.updated@example.com\"\n  },\n  \"insurance\": {\n    \"provider\": \"Aetna\",\n    \"policy_number\": \"AETNA789012\",\n    \"group_number\": \"GRP345678\",\n    \"expiry_date\": \"2025-12-31\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/{{patient_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"{{patient_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Patient (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/patient/{{patient_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"{{patient_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Data",
+			"item": [
+				{
+					"name": "Create Test Patient",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"Patient\",\n  \"email\": \"test.patient@example.com\",\n  \"phone_number\": \"+19876543211\",\n  \"password\": \"TestPassw0rd!\",\n  \"confirm_password\": \"TestPassw0rd!\",\n  \"date_of_birth\": \"1985-08-20\",\n  \"gender\": \"male\",\n  \"blood_type\": \"A+\",\n  \"height\": 175,\n  \"weight\": 70,\n  \"address\": {\n    \"street\": \"321 Test Blvd\",\n    \"city\": \"Miami\",\n    \"state\": \"FL\",\n    \"zip\": \"33101\"\n  },\n  \"preferred_language\": \"English\",\n  \"emergency_contact\": {\n    \"name\": \"Test Emergency Contact\",\n    \"relationship\": \"Friend\",\n    \"phone\": \"+19876543212\",\n    \"email\": \"emergency@example.com\"\n  },\n  \"insurance\": {\n    \"provider\": \"Cigna\",\n    \"policy_number\": \"CIGNA456789\",\n    \"group_number\": \"GRP123456\",\n    \"expiry_date\": \"2024-06-30\"\n  },\n  \"medical_history\": {\n    \"conditions\": [\n      {\n        \"condition\": \"Diabetes Type 2\",\n        \"diagnosis_date\": \"2018-11-10\",\n        \"is_active\": true,\n        \"notes\": \"Well controlled with diet and exercise\"\n      }\n    ],\n    \"medications\": [\n      {\n        \"name\": \"Metformin\",\n        \"dosage\": \"500mg\",\n        \"frequency\": \"twice daily\",\n        \"start_date\": \"2018-11-15\",\n        \"is_active\": true\n      }\n    ],\n    \"allergies\": [\n      {\n        \"allergen\": \"Sulfa drugs\",\n        \"reaction\": \"Hives\",\n        \"severity\": \"severe\"\n      }\n    ]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/patient/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"patient",
+								"register"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save tokens from login response",
+					"if (pm.response.code === 200 && pm.request.url.path.includes('login')) {",
+					"    const response = pm.response.json();",
+					"    if (response.data && response.data.access_token) {",
+					"        pm.environment.set('access_token', response.data.access_token);",
+					"        console.log('Access token saved');",
+					"    }",
+					"    if (response.data && response.data.refresh_token) {",
+					"        pm.environment.set('refresh_token', response.data.refresh_token);",
+					"        console.log('Refresh token saved');",
+					"    }",
+					"    if (response.data && response.data.patient && response.data.patient.id) {",
+					"        pm.environment.set('patient_id', response.data.patient.id);",
+					"        console.log('Patient ID saved');",
+					"    }",
+					"}",
+					"",
+					"// Auto-save patient ID from registration response",
+					"if (pm.response.code === 201 && pm.request.url.path.includes('register')) {",
+					"    const response = pm.response.json();",
+					"    if (response.data && response.data.patient_id) {",
+					"        pm.environment.set('patient_id', response.data.patient_id);",
+					"        console.log('Patient ID saved from registration');",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "patient_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 

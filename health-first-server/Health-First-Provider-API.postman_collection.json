@@ -1,0 +1,419 @@
+{
+	"info": {
+		"_postman_id": "health-first-provider-api",
+		"name": "Health First Provider API",
+		"description": "Complete API collection for healthcare provider registration, authentication, and onboarding",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register Provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phone_number\": \"+12345678901\",\n  \"password\": \"StrongPassw0rd!\",\n  \"confirm_password\": \"StrongPassw0rd!\",\n  \"specialization\": \"Cardiology\",\n  \"license_number\": \"MD123456\",\n  \"years_of_experience\": 10,\n  \"clinic_address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zip\": \"10001\"\n  },\n  \"medical_school\": \"Harvard Medical School\",\n  \"board_certifications\": [\"American Board of Cardiology\"],\n  \"languages_spoken\": [\"English\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login Provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"verified@test.com\",\n  \"password\": \"StrongPassw0rd!\",\n  \"remember_me\": true,\n  \"device_info\": {\n    \"device_name\": \"Postman\",\n    \"device_type\": \"desktop\",\n    \"browser\": \"Postman\",\n    \"os\": \"Windows\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/refresh-token",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"refresh-token"
+							]
+						}
+					}
+				},
+				{
+					"name": "Logout Provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/provider/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"logout"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Email Verification",
+			"item": [
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"your-verification-token\",\n  \"email\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/verify-email",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"verify-email"
+							]
+						}
+					}
+				},
+				{
+					"name": "Resend Verification Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/resend-verification",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"resend-verification"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Onboarding",
+			"item": [
+				{
+					"name": "Get Onboarding Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/provider/onboarding/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"onboarding",
+								"status"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Provider Management",
+			"item": [
+				{
+					"name": "Get All Providers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/provider?page=1&limit=10&specialization=Cardiology&verification_status=verified&search=john",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "specialization",
+									"value": "Cardiology"
+								},
+								{
+									"key": "verification_status",
+									"value": "verified"
+								},
+								{
+									"key": "search",
+									"value": "john"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Provider by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/provider/{{provider_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"{{provider_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Provider",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"John Updated\",\n  \"years_of_experience\": 15,\n  \"clinic_address\": {\n    \"street\": \"456 Updated St\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zip\": \"90210\"\n  },\n  \"medical_school\": \"Stanford Medical School\",\n  \"board_certifications\": [\"American Board of Cardiology\", \"American Board of Internal Medicine\"],\n  \"languages_spoken\": [\"English\", \"Spanish\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/{{provider_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"{{provider_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Provider (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/provider/{{provider_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"{{provider_id}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Data",
+			"item": [
+				{
+					"name": "Create Test Provider",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Test\",\n  \"last_name\": \"Provider\",\n  \"email\": \"test.provider@example.com\",\n  \"phone_number\": \"+19876543210\",\n  \"password\": \"TestPassw0rd!\",\n  \"confirm_password\": \"TestPassw0rd!\",\n  \"specialization\": \"Neurology\",\n  \"license_number\": \"MD789012\",\n  \"years_of_experience\": 8,\n  \"clinic_address\": {\n    \"street\": \"789 Test Ave\",\n    \"city\": \"Chicago\",\n    \"state\": \"IL\",\n    \"zip\": \"60601\"\n  },\n  \"medical_school\": \"Northwestern Medical School\",\n  \"board_certifications\": [\"American Board of Neurology\"],\n  \"languages_spoken\": [\"English\", \"French\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/provider/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"provider",
+								"register"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save tokens from login response",
+					"if (pm.response.code === 200 && pm.request.url.path.includes('login')) {",
+					"    const response = pm.response.json();",
+					"    if (response.data && response.data.access_token) {",
+					"        pm.environment.set('access_token', response.data.access_token);",
+					"        console.log('Access token saved');",
+					"    }",
+					"    if (response.data && response.data.refresh_token) {",
+					"        pm.environment.set('refresh_token', response.data.refresh_token);",
+					"        console.log('Refresh token saved');",
+					"    }",
+					"    if (response.data && response.data.provider && response.data.provider.id) {",
+					"        pm.environment.set('provider_id', response.data.provider.id);",
+					"        console.log('Provider ID saved');",
+					"    }",
+					"}",
+					"",
+					"// Auto-save provider ID from registration response",
+					"if (pm.response.code === 201 && pm.request.url.path.includes('register')) {",
+					"    const response = pm.response.json();",
+					"    if (response.data && response.data.provider_id) {",
+					"        pm.environment.set('provider_id', response.data.provider_id);",
+					"        console.log('Provider ID saved from registration');",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "provider_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 
