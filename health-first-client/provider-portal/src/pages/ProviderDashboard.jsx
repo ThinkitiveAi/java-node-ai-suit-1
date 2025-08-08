@@ -58,17 +58,17 @@ const ProviderDashboard = () => {
     },
     {
       title: 'View Appointments',
-      description: 'Check today\'s appointments and upcoming schedule',
+      description: 'Check all appointments and manage your schedule',
       icon: <CalendarIcon fontSize="large" color="secondary" />,
       action: () => navigate('/appointments'),
       color: 'secondary'
     },
     {
-      title: 'Patient Management',
-      description: 'View patient records and manage consultations',
-      icon: <PeopleIcon fontSize="large" color="success" />,
-      action: () => console.log('Navigate to patients'),
-      color: 'success'
+      title: 'Booking Requests',
+      description: 'Review and approve new appointment requests',
+      icon: <PeopleIcon fontSize="large" color="info" />,
+      action: () => navigate('/appointments/new'),
+      color: 'info'
     },
     {
       title: 'Reports & Analytics',

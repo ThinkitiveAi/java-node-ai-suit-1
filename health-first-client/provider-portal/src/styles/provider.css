@@ -410,3 +410,235 @@ body {
 .p-md { padding: var(--spacing-md) !important; }
 .p-lg { padding: var(--spacing-lg) !important; }
 .p-xl { padding: var(--spacing-xl) !important; } 
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* FullCalendar Customizations */
+.fc {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.fc-theme-standard td, 
+.fc-theme-standard th {
+  border-color: #e0e0e0;
+}
+
+.fc-col-header-cell {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #424242;
+  padding: 12px 8px;
+}
+
+.fc-daygrid-day-number {
+  color: #424242;
+  font-weight: 500;
+  padding: 8px;
+}
+
+.fc-day-today {
+  background-color: rgba(25, 118, 210, 0.08) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.fc-timegrid-slot {
+  height: 3em;
+}
+
+.fc-timegrid-slot-label {
+  color: #666;
+  font-size: 0.85em;
+}
+
+.fc-event {
+  border-radius: 6px;
+  border: none;
+  font-size: 0.8em;
+  padding: 2px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fc-event:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fc-event-title {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.fc-list-event:hover td {
+  background-color: rgba(25, 118, 210, 0.08);
+}
+
+.fc-list-day-cushion {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+}
+
+.fc-button {
+  background-color: #1976d2 !important;
+  border-color: #1976d2 !important;
+  border-radius: 4px !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  padding: 6px 16px !important;
+}
+
+.fc-button:hover {
+  background-color: #1565c0 !important;
+  border-color: #1565c0 !important;
+}
+
+.fc-button:disabled {
+  background-color: #e0e0e0 !important;
+  border-color: #e0e0e0 !important;
+  color: #9e9e9e !important;
+}
+
+.fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #1565c0 !important;
+  border-color: #1565c0 !important;
+}
+
+.fc-toolbar {
+  margin-bottom: 1em;
+}
+
+.fc-toolbar-title {
+  color: #424242;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* Custom event styles */
+.fc-event.fc-event-available {
+  background-color: #1976d2;
+  border-color: #1976d2;
+}
+
+.fc-event.fc-event-partial {
+  background-color: #ed6c02;
+  border-color: #ed6c02;
+}
+
+.fc-event.fc-event-booked {
+  background-color: #d32f2f;
+  border-color: #d32f2f;
+}
+
+/* Time grid improvements */
+.fc-timegrid-event {
+  border-radius: 4px;
+  margin: 1px;
+}
+
+.fc-timegrid-event-harness {
+  margin-right: 2px;
+}
+
+/* Business hours styling */
+.fc-non-business {
+  background-color: #fafafa;
+}
+
+/* Now indicator */
+.fc-timegrid-now-indicator-line {
+  border-color: #f44336;
+  border-width: 2px;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #f44336;
+}
+
+/* Selection styling */
+.fc-highlight {
+  background-color: rgba(25, 118, 210, 0.2) !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .fc-toolbar {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .fc-button-group {
+    gap: 4px;
+  }
+  
+  .fc-event {
+    font-size: 0.7em;
+  }
+  
+  .fc-timegrid-slot {
+    height: 2.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  .fc-col-header-cell {
+    padding: 8px 4px;
+    font-size: 0.8em;
+  }
+  
+  .fc-daygrid-day-number {
+    padding: 4px;
+    font-size: 0.9em;
+  }
+  
+  .fc-event {
+    font-size: 0.65em;
+    padding: 1px 2px;
+  }
+} 

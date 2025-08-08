@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Card,
@@ -13,12 +13,13 @@ import {
   DialogContent,
   DialogActions,
   Alert,
-  Tooltip,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  Tooltip,
+  Paper
 } from '@mui/material';
 import {
   ChevronLeft,
@@ -33,9 +34,16 @@ import {
   Schedule as ScheduleIcon,
   LocationOn as LocationIcon,
   AttachMoney as MoneyIcon,
-  Person as PatientIcon
+  Person as PatientIcon,
+  ViewDay as ViewDayIcon,
+  List as ListIcon
 } from '@mui/icons-material';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, parseISO, isWithinInterval } from 'date-fns';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import listPlugin from '@fullcalendar/list';
+import { format, parseISO } from 'date-fns';
 import SlotCreationForm from './SlotCreationForm';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
@@ -47,8 +55,8 @@ const AvailabilityCalendar = ({
   loading = false,
   error = null
 }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [view, setView] = useState('week'); // 'week' or 'month'
+  const calendarRef = useRef(null);
+  const [currentView, setCurrentView] = useState('timeGridWeek');
   const [slots, setSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showSlotForm, setShowSlotForm] = useState(false);
@@ -56,6 +64,7 @@ const AvailabilityCalendar = ({
   const [contextMenu, setContextMenu] = useState(null);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false);
   const [slotToDelete, setSlotToDelete] = useState(null);
+  const [calendarEvents, setCalendarEvents] = useState([]);
 
   // Mock slot data - replace with actual API call
   const mockSlots = [
@@ -111,12 +120,45 @@ const AvailabilityCalendar = ({
   ];
 
   useEffect(() => {
-    // Load slots for current view period
     loadSlots();
-  }, [currentDate, view, providerId]);
+  }, [providerId]);
+
+  useEffect(() => {
+    // Convert slots to FullCalendar events
+    const events = slots.map(slot => {
+      const isBooked = slot.bookedAppointments >= slot.maxAppointments;
+      const hasBookings = slot.bookedAppointments > 0;
+      
+      let backgroundColor = '#1976d2'; // primary
+      let borderColor = '#1976d2';
+      
+      if (isBooked) {
+        backgroundColor = '#d32f2f'; // error
+        borderColor = '#d32f2f';
+      } else if (hasBookings) {
+        backgroundColor = '#ed6c02'; // warning
+        borderColor = '#ed6c02';
+      }
+
+      return {
+        id: slot.id,
+        title: `${slot.appointmentType} (${slot.bookedAppointments}/${slot.maxAppointments})`,
+        start: `${slot.date}T${slot.startTime}:00`,
+        end: `${slot.date}T${slot.endTime}:00`,
+        backgroundColor,
+        borderColor,
+        extendedProps: {
+          slot: slot,
+          isBooked,
+          hasBookings
+        }
+      };
+    });
+    
+    setCalendarEvents(events);
+  }, [slots]);
 
   const loadSlots = async () => {
-    // Mock API call - replace with actual implementation
     try {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -124,46 +166,6 @@ const AvailabilityCalendar = ({
     } catch (error) {
       console.error('Error loading slots:', error);
     }
-  };
-
-  // Navigation functions
-  const navigatePrevious = () => {
-    if (view === 'week') {
-      setCurrentDate(subWeeks(currentDate, 1));
-    } else {
-      setCurrentDate(subMonths(currentDate, 1));
-    }
-  };
-
-  const navigateNext = () => {
-    if (view === 'week') {
-      setCurrentDate(addWeeks(currentDate, 1));
-    } else {
-      setCurrentDate(addMonths(currentDate, 1));
-    }
-  };
-
-  const navigateToday = () => {
-    setCurrentDate(new Date());
-  };
-
-  // Get days for current view
-  const getDaysInView = () => {
-    if (view === 'week') {
-      const start = startOfWeek(currentDate);
-      const end = endOfWeek(currentDate);
-      return eachDayOfInterval({ start, end });
-    } else {
-      const start = startOfMonth(currentDate);
-      const end = endOfMonth(currentDate);
-      return eachDayOfInterval({ start, end });
-    }
-  };
-
-  // Get slots for a specific day
-  const getSlotsForDay = (day) => {
-    const dayString = format(day, 'yyyy-MM-dd');
-    return slots.filter(slot => slot.date === dayString);
   };
 
   // Handle slot actions
@@ -199,16 +201,42 @@ const AvailabilityCalendar = ({
     }
   };
 
-  // Context menu handlers
-  const handleSlotRightClick = (event, slot) => {
-    event.preventDefault();
-    setContextMenu({
-      mouseX: event.clientX - 2,
-      mouseY: event.clientY - 4,
-    });
+  // FullCalendar event handlers
+  const handleEventClick = (clickInfo) => {
+    const slot = clickInfo.event.extendedProps.slot;
     setSelectedSlot(slot);
+    
+    // Show context menu at click position
+    setContextMenu({
+      mouseX: clickInfo.jsEvent.clientX - 2,
+      mouseY: clickInfo.jsEvent.clientY - 4,
+    });
   };
 
+  const handleDateSelect = (selectInfo) => {
+    const selectedDate = format(selectInfo.start, 'yyyy-MM-dd');
+    const selectedStartTime = format(selectInfo.start, 'HH:mm');
+    const selectedEndTime = format(selectInfo.end, 'HH:mm');
+    
+    setEditingSlot({ 
+      date: selectedDate,
+      startTime: selectedStartTime,
+      endTime: selectedEndTime
+    });
+    setShowSlotForm(true);
+    
+    // Clear the selection
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.unselect();
+  };
+
+  const handleDateClick = (dateClickInfo) => {
+    const selectedDate = format(dateClickInfo.date, 'yyyy-MM-dd');
+    setEditingSlot({ date: selectedDate });
+    setShowSlotForm(true);
+  };
+
+  // Context menu handlers
   const handleContextMenuClose = () => {
     setContextMenu(null);
     setSelectedSlot(null);
@@ -230,7 +258,6 @@ const AvailabilityCalendar = ({
 
   const handleDeleteSlot = () => {
     if (selectedSlot.bookedAppointments > 0) {
-      // Show warning for booked slots
       setSlotToDelete(selectedSlot);
       setDeleteConfirmDialog(true);
     } else {
@@ -239,90 +266,68 @@ const AvailabilityCalendar = ({
     handleContextMenuClose();
   };
 
-  // Render slot chip
-  const renderSlotChip = (slot) => {
-    const isBooked = slot.bookedAppointments >= slot.maxAppointments;
-    const hasBookings = slot.bookedAppointments > 0;
+  // View change handlers
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.changeView(view);
+  };
+
+  const handlePrev = () => {
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.prev();
+  };
+
+  const handleNext = () => {
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.next();
+  };
+
+  const handleToday = () => {
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.today();
+  };
+
+  // Custom event content
+  const renderEventContent = (eventInfo) => {
+    const { slot, isBooked, hasBookings } = eventInfo.event.extendedProps;
     
     return (
-      <Chip
-        key={slot.id}
-        size="small"
-        icon={<ScheduleIcon />}
-        label={`${slot.startTime}-${slot.endTime}`}
-        color={isBooked ? 'error' : hasBookings ? 'warning' : 'primary'}
-        variant={hasBookings ? 'filled' : 'outlined'}
-        onClick={() => setSelectedSlot(slot)}
-        onContextMenu={(e) => handleSlotRightClick(e, slot)}
-        sx={{
-          mb: 0.5,
-          cursor: 'pointer',
-          '&:hover': {
-            transform: 'scale(1.05)',
-            transition: 'transform 0.2s'
-          }
-        }}
-      />
+      <Box sx={{ p: 0.5, overflow: 'hidden' }}>
+        <Typography variant="caption" sx={{ 
+          fontSize: '0.7rem', 
+          fontWeight: 'bold',
+          color: 'white',
+          lineHeight: 1.2
+        }}>
+          {slot.appointmentType}
+        </Typography>
+        <Typography variant="caption" sx={{ 
+          fontSize: '0.65rem', 
+          color: 'rgba(255,255,255,0.9)',
+          display: 'block'
+        }}>
+          {slot.bookedAppointments}/{slot.maxAppointments} booked
+        </Typography>
+        {slot.location?.room && (
+          <Typography variant="caption" sx={{ 
+            fontSize: '0.6rem', 
+            color: 'rgba(255,255,255,0.8)',
+            display: 'block'
+          }}>
+            {slot.location.room}
+          </Typography>
+        )}
+      </Box>
     );
   };
 
-  // Render day cell
-  const renderDayCell = (day) => {
-    const daySlots = getSlotsForDay(day);
-    const isToday = isSameDay(day, new Date());
-    const isCurrentMonth = view === 'month' ? isSameMonth(day, currentDate) : true;
-
-    return (
-      <Card
-        key={day.toISOString()}
-        sx={{
-          minHeight: view === 'week' ? 200 : 120,
-          bgcolor: isToday ? 'primary.50' : 'background.paper',
-          opacity: isCurrentMonth ? 1 : 0.5,
-          border: isToday ? 2 : 1,
-          borderColor: isToday ? 'primary.main' : 'divider',
-          cursor: 'pointer',
-          '&:hover': {
-            boxShadow: 2
-          }
-        }}
-        onClick={() => {
-          setEditingSlot({ date: format(day, 'yyyy-MM-dd') });
-          setShowSlotForm(true);
-        }}
-      >
-        <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="body2" fontWeight={isToday ? 'bold' : 'normal'}>
-              {format(day, 'd')}
-            </Typography>
-            {daySlots.length > 0 && (
-              <Chip
-                size="small"
-                label={daySlots.length}
-                color="primary"
-                variant="outlined"
-              />
-            )}
-          </Box>
-          
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            {daySlots.slice(0, view === 'week' ? 6 : 3).map(renderSlotChip)}
-            {daySlots.length > (view === 'week' ? 6 : 3) && (
-              <Typography variant="caption" color="text.secondary">
-                +{daySlots.length - (view === 'week' ? 6 : 3)} more
-              </Typography>
-            )}
-          </Box>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const days = getDaysInView();
-  const currentPeriod = view === 'week' 
-    ? `Week of ${format(startOfWeek(currentDate), 'MMM d, yyyy')}`
-    : format(currentDate, 'MMMM yyyy');
+  const viewButtons = [
+    { view: 'dayGridMonth', label: 'Month', icon: <ViewModule /> },
+    { view: 'timeGridWeek', label: 'Week', icon: <ViewWeek /> },
+    { view: 'timeGridDay', label: 'Day', icon: <ViewDayIcon /> },
+    { view: 'listWeek', label: 'List', icon: <ListIcon /> }
+  ];
 
   return (
     <Box sx={{ p: 3 }}>
@@ -349,47 +354,66 @@ const AvailabilityCalendar = ({
       </Box>
 
       {/* Navigation and View Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton onClick={navigatePrevious}>
-            <ChevronLeft />
-          </IconButton>
-          
-          <Button
-            variant="outlined"
-            onClick={navigateToday}
-            startIcon={<CalendarToday />}
-          >
-            Today
-          </Button>
-          
-          <IconButton onClick={navigateNext}>
-            <ChevronRight />
-          </IconButton>
-          
-          <Typography variant="h6" sx={{ ml: 2 }}>
-            {currentPeriod}
-          </Typography>
-        </Box>
+      <Paper elevation={1} sx={{ p: 2, mb: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+          {/* Navigation Controls */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton onClick={handlePrev} size="small">
+              <ChevronLeft />
+            </IconButton>
+            
+            <Button
+              variant="outlined"
+              onClick={handleToday}
+              startIcon={<CalendarToday />}
+              size="small"
+            >
+              Today
+            </Button>
+            
+            <IconButton onClick={handleNext} size="small">
+              <ChevronRight />
+            </IconButton>
+          </Box>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant={view === 'week' ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={<ViewWeek />}
-            onClick={() => setView('week')}
-          >
-            Week
-          </Button>
-          <Button
-            variant={view === 'month' ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={<ViewModule />}
-            onClick={() => setView('month')}
-          >
-            Month
-          </Button>
+          {/* View Controls */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {viewButtons.map((button) => (
+              <Button
+                key={button.view}
+                variant={currentView === button.view ? 'contained' : 'outlined'}
+                size="small"
+                startIcon={button.icon}
+                onClick={() => handleViewChange(button.view)}
+                sx={{ minWidth: 'auto' }}
+              >
+                {button.label}
+              </Button>
+            ))}
+          </Box>
         </Box>
+      </Paper>
+
+      {/* Legend */}
+      <Box sx={{ mb: 2, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Typography variant="body2" color="text.secondary">
+          Legend:
+        </Typography>
+        <Chip
+          size="small"
+          label="Available"
+          sx={{ bgcolor: '#1976d2', color: 'white' }}
+        />
+        <Chip
+          size="small"
+          label="Partially Booked"
+          sx={{ bgcolor: '#ed6c02', color: 'white' }}
+        />
+        <Chip
+          size="small"
+          label="Fully Booked"
+          sx={{ bgcolor: '#d32f2f', color: 'white' }}
+        />
       </Box>
 
       {/* Error Alert */}
@@ -399,43 +423,54 @@ const AvailabilityCalendar = ({
         </Alert>
       )}
 
-      {/* Calendar Grid */}
+      {/* FullCalendar */}
       {loading ? (
         <LoadingSpinner message="Loading availability..." />
       ) : (
-        <Grid container spacing={1}>
-          {view === 'week' && (
-            <>
-              {/* Week view - 7 columns */}
-              {days.map((day) => (
-                <Grid item xs={12} md={12/7} key={day.toISOString()}>
-                  <Typography variant="subtitle2" align="center" sx={{ mb: 1 }}>
-                    {format(day, 'EEE, MMM d')}
-                  </Typography>
-                  {renderDayCell(day)}
-                </Grid>
-              ))}
-            </>
-          )}
-          
-          {view === 'month' && (
-            <>
-              {/* Month view - 7x5 grid */}
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName) => (
-                <Grid item xs={12/7} key={dayName}>
-                  <Typography variant="subtitle2" align="center" fontWeight="bold" sx={{ mb: 1 }}>
-                    {dayName}
-                  </Typography>
-                </Grid>
-              ))}
-              {days.map((day) => (
-                <Grid item xs={12/7} key={day.toISOString()}>
-                  {renderDayCell(day)}
-                </Grid>
-              ))}
-            </>
-          )}
-        </Grid>
+        <Paper elevation={2} sx={{ p: 2 }}>
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            initialView={currentView}
+            events={calendarEvents}
+            selectable={true}
+            selectMirror={true}
+            dayMaxEvents={true}
+            weekends={true}
+            eventClick={handleEventClick}
+            select={handleDateSelect}
+            dateClick={handleDateClick}
+            eventContent={renderEventContent}
+            headerToolbar={false} // We're using custom header
+            height="auto"
+            slotMinTime="06:00:00"
+            slotMaxTime="22:00:00"
+            allDaySlot={false}
+            eventDisplay="block"
+            displayEventTime={true}
+            eventTimeFormat={{
+              hour: 'numeric',
+              minute: '2-digit',
+              meridiem: 'short'
+            }}
+            slotLabelFormat={{
+              hour: 'numeric',
+              minute: '2-digit',
+              meridiem: 'short'
+            }}
+            businessHours={{
+              daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
+              startTime: '08:00',
+              endTime: '18:00'
+            }}
+            selectConstraint="businessHours"
+            eventConstraint="businessHours"
+            nowIndicator={true}
+            scrollTime="08:00:00"
+            slotDuration="00:30:00"
+            slotLabelInterval="01:00:00"
+          />
+        </Paper>
       )}
 
       {/* Slot Creation/Edit Dialog */}

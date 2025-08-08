@@ -9,6 +9,8 @@ import ProviderLogin from './components/auth/ProviderLogin';
 import ProviderRegistration from './components/auth/ProviderRegistration';
 import AvailabilityManagement from './pages/AvailabilityManagement';
 import ProviderDashboard from './pages/ProviderDashboard';
+import AppointmentBooking from './pages/AppointmentBooking';
+import AppointmentListing from './pages/AppointmentListing';
 import './styles/provider.css';
 
 // Wrapper components to handle navigation
@@ -125,7 +127,8 @@ function App() {
               {/* Dashboard Routes */}
               <Route path="/dashboard" element={<ProviderDashboard />} />
               <Route path="/availability" element={<AvailabilityManagement />} />
-              <Route path="/appointments" element={<div>Appointments (Coming Soon)</div>} />
+              <Route path="/appointments" element={<AppointmentListing />} />
+              <Route path="/appointments/new" element={<AppointmentBooking />} />
 
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/login" replace />} />
