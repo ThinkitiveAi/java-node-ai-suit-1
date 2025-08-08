@@ -1,0 +1,745 @@
+openapi: 3.0.3
+info:
+  title: Health First Provider API
+  description: API for healthcare provider registration, authentication, and onboarding
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@healthfirst.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Provider:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Provider ID
+        first_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+        specialization:
+          type: string
+          enum: [Cardiology, Neurology, Pediatrics, Surgery, Emergency Medicine, Family Medicine, Internal Medicine, Obstetrics and Gynecology, Psychiatry, Radiology, Anesthesiology, Dermatology, Orthopedics, Ophthalmology, Otolaryngology, Urology, Oncology, Gastroenterology, Endocrinology, Rheumatology]
+        license_number:
+          type: string
+          pattern: '^[A-Z]{2}\d{6}$'
+        years_of_experience:
+          type: integer
+          minimum: 0
+          maximum: 50
+        clinic_address:
+          type: object
+          properties:
+            street:
+              type: string
+              maxLength: 200
+            city:
+              type: string
+              maxLength: 100
+            state:
+              type: string
+              maxLength: 50
+            zip:
+              type: string
+              pattern: '^\d{5}(-\d{4})?$'
+          required:
+            - street
+            - city
+            - state
+            - zip
+        medical_school:
+          type: string
+        board_certifications:
+          type: array
+          items:
+            type: string
+        languages_spoken:
+          type: array
+          items:
+            type: string
+        verification_status:
+          type: string
+          enum: [pending, verified, approved, rejected]
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+        remember_me:
+          type: boolean
+          default: false
+        device_info:
+          type: object
+          properties:
+            device_name:
+              type: string
+            device_type:
+              type: string
+              enum: [mobile, tablet, desktop]
+            browser:
+              type: string
+            os:
+              type: string
+
+    RegisterRequest:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - phone_number
+        - password
+        - confirm_password
+        - specialization
+        - license_number
+        - years_of_experience
+        - clinic_address
+      properties:
+        first_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+        password:
+          type: string
+          minLength: 8
+        confirm_password:
+          type: string
+        specialization:
+          type: string
+        license_number:
+          type: string
+        years_of_experience:
+          type: integer
+          minimum: 0
+        clinic_address:
+          type: object
+        medical_school:
+          type: string
+        board_certifications:
+          type: array
+          items:
+            type: string
+        languages_spoken:
+          type: array
+          items:
+            type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            token_type:
+              type: string
+            expires_in:
+              type: integer
+            provider:
+              $ref: '#/components/schemas/Provider'
+
+    OnboardingStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            provider_id:
+              type: string
+            email:
+              type: string
+            verification_status:
+              type: string
+            onboarding_steps:
+              type: object
+              properties:
+                email_verified:
+                  type: boolean
+                profile_completed:
+                  type: boolean
+                documents_uploaded:
+                  type: boolean
+                admin_approved:
+                  type: boolean
+            progress_percentage:
+              type: integer
+            current_step:
+              type: string
+            next_steps:
+              type: array
+              items:
+                type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        error_code:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        request_id:
+          type: string
+
+paths:
+  /provider/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new healthcare provider
+      description: Register a new healthcare provider with email verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Provider registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      provider_id:
+                        type: string
+                      email:
+                        type: string
+                      verification_status:
+                        type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Provider already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login provider
+      description: Authenticate provider and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Account not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '423':
+          description: Account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get new access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+                      token_type:
+                        type: string
+                      expires_in:
+                        type: integer
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout provider
+      description: Logout provider and clear session
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/verify-email:
+    post:
+      tags:
+        - Email Verification
+      summary: Verify email address
+      description: Verify provider email using verification token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - email
+              properties:
+                token:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      provider_id:
+                        type: string
+                      email:
+                        type: string
+                      verification_status:
+                        type: string
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/resend-verification:
+    post:
+      tags:
+        - Email Verification
+      summary: Resend verification email
+      description: Resend verification email to provider
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: Provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/onboarding/status:
+    get:
+      tags:
+        - Onboarding
+      summary: Get onboarding status
+      description: Get current onboarding progress for authenticated provider
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Onboarding status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider:
+    get:
+      tags:
+        - Provider Management
+      summary: Get all providers
+      description: Get paginated list of providers with filtering
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+        - name: specialization
+          in: query
+          schema:
+            type: string
+          description: Filter by specialization
+        - name: verification_status
+          in: query
+          schema:
+            type: string
+          description: Filter by verification status
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in name, email, or license
+      responses:
+        '200':
+          description: Providers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      providers:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Provider'
+                      pagination:
+                        type: object
+                        properties:
+                          page:
+                            type: integer
+                          limit:
+                            type: integer
+                          total:
+                            type: integer
+                          pages:
+                            type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /provider/{id}:
+    get:
+      tags:
+        - Provider Management
+      summary: Get provider by ID
+      description: Get specific provider details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Provider ID
+      responses:
+        '200':
+          description: Provider retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      provider:
+                        $ref: '#/components/schemas/Provider'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags:
+        - Provider Management
+      summary: Update provider
+      description: Update provider information
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Provider ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                years_of_experience:
+                  type: integer
+                clinic_address:
+                  type: object
+                medical_school:
+                  type: string
+                board_certifications:
+                  type: array
+                  items:
+                    type: string
+                languages_spoken:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Provider updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      provider:
+                        $ref: '#/components/schemas/Provider'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags:
+        - Provider Management
+      summary: Soft delete provider
+      description: Soft delete provider (marks as deleted but preserves data)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Provider ID
+      responses:
+        '200':
+          description: Provider deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      provider:
+                        $ref: '#/components/schemas/Provider'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Provider not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
