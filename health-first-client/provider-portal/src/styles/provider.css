@@ -1,0 +1,412 @@
+/* Provider Portal CSS Styles */
+
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
+}
+
+/* Responsive Design Variables */
+:root {
+  --mobile-breakpoint: 768px;
+  --tablet-breakpoint: 1024px;
+  --desktop-breakpoint: 1200px;
+  
+  /* Healthcare Color Palette */
+  --primary-green: #2E7D32;
+  --primary-green-light: #4CAF50;
+  --primary-green-dark: #1B5E20;
+  --secondary-blue: #1976D2;
+  --secondary-blue-light: #42A5F5;
+  --secondary-blue-dark: #0D47A1;
+  
+  /* Spacing Scale */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-xxl: 3rem;    /* 48px */
+  
+  /* Typography Scale */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-md: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-xxl: 1.5rem;    /* 24px */
+}
+
+/* Touch-Friendly Interface */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Button Enhancements */
+.MuiButton-root {
+  text-transform: none !important;
+  border-radius: 8px !important;
+}
+
+.MuiButton-contained {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Form Field Styling */
+.MuiTextField-root {
+  margin-bottom: var(--spacing-md);
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.MuiFormHelperText-root {
+  margin-left: 0 !important;
+  margin-top: 4px !important;
+}
+
+/* Card and Paper Enhancements */
+.MuiCard-root,
+.MuiPaper-root {
+  border-radius: 12px !important;
+}
+
+/* Loading States */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: inherit;
+}
+
+/* Healthcare-specific Components */
+.healthcare-header {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-dark) 100%);
+  color: white;
+  padding: var(--spacing-xxl);
+  text-align: center;
+  border-radius: 0 0 16px 16px;
+}
+
+.healthcare-icon {
+  font-size: 3rem !important;
+  margin-bottom: var(--spacing-md);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section-icon {
+  color: var(--primary-green);
+}
+
+/* Progress Indicators */
+.progress-container {
+  padding: var(--spacing-lg);
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+/* Stepper Customization */
+.MuiStepper-root {
+  padding: var(--spacing-lg) 0;
+}
+
+.MuiStepLabel-root {
+  flex-direction: column;
+}
+
+.MuiStepIcon-root {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+/* Validation Messages */
+.validation-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
+}
+
+.validation-icon {
+  margin-top: 2px;
+}
+
+/* Security Notice */
+.security-notice {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-lg) 0;
+}
+
+/* Responsive Design - Mobile First */
+
+/* Mobile Styles (0px - 767px) */
+@media (max-width: 767px) {
+  .container {
+    padding: var(--spacing-md) !important;
+  }
+  
+  .healthcare-header {
+    padding: var(--spacing-lg);
+  }
+  
+  .healthcare-icon {
+    font-size: 2.5rem !important;
+  }
+  
+  /* Stack form fields vertically */
+  .MuiGrid-container .MuiGrid-item {
+    padding: var(--spacing-sm) 0 !important;
+  }
+  
+  /* Full width buttons */
+  .MuiButton-root {
+    width: 100%;
+    padding: var(--spacing-md) !important;
+  }
+  
+  /* Adjust stepper for mobile */
+  .MuiStepper-root {
+    padding: var(--spacing-md) 0;
+  }
+  
+  .MuiStepLabel-label {
+    font-size: var(--font-size-sm) !important;
+  }
+  
+  /* Reduce form section spacing */
+  .form-section {
+    margin-bottom: var(--spacing-lg);
+  }
+  
+  /* Simplify headers */
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+  
+  /* Optimize accordions for mobile */
+  .MuiAccordion-root {
+    margin-bottom: var(--spacing-sm) !important;
+  }
+  
+  .MuiAccordionSummary-content {
+    margin: var(--spacing-sm) 0 !important;
+  }
+}
+
+/* Tablet Styles (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    padding: var(--spacing-lg) !important;
+  }
+  
+  /* Two-column layout for some form fields */
+  .MuiGrid-container .MuiGrid-item {
+    padding: var(--spacing-sm) !important;
+  }
+  
+  /* Adjust button sizes */
+  .MuiButton-root {
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+  }
+  
+  /* Stepper adjustments */
+  .MuiStepIcon-root {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* Desktop Styles (1024px+) */
+@media (min-width: 1024px) {
+  .container {
+    padding: var(--spacing-xl) !important;
+  }
+  
+  /* Full desktop layout */
+  .MuiGrid-container .MuiGrid-item {
+    padding: var(--spacing-md) !important;
+  }
+  
+  /* Larger interactive elements */
+  .MuiButton-root {
+    padding: var(--spacing-md) var(--spacing-xl) !important;
+  }
+  
+  /* Enhanced hover effects */
+  .MuiCard-root:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  /* Better spacing for desktop */
+  .form-section {
+    margin-bottom: var(--spacing-xxl);
+  }
+}
+
+/* Large Desktop Styles (1200px+) */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* Optimize for larger screens */
+  .healthcare-header {
+    padding: var(--spacing-xxl) var(--spacing-xxl);
+  }
+  
+  .healthcare-icon {
+    font-size: 4rem !important;
+  }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .MuiButton-contained {
+    border: 2px solid currentColor;
+  }
+  
+  .MuiOutlinedInput-root {
+    border-width: 2px !important;
+  }
+}
+
+/* Focus management for keyboard navigation */
+.MuiButton-root:focus,
+.MuiTextField-root:focus-within,
+.MuiSelect-root:focus-within {
+  outline: 2px solid var(--secondary-blue) !important;
+  outline-offset: 2px !important;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-friendly {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Dark mode support (if implemented) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --card-bg: #1e1e1e;
+  }
+  
+  .healthcare-header {
+    background: linear-gradient(135deg, var(--primary-green-dark) 0%, #0d4f12 100%);
+  }
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mb-sm { margin-bottom: var(--spacing-sm) !important; }
+.mb-md { margin-bottom: var(--spacing-md) !important; }
+.mb-lg { margin-bottom: var(--spacing-lg) !important; }
+.mb-xl { margin-bottom: var(--spacing-xl) !important; }
+
+.mt-sm { margin-top: var(--spacing-sm) !important; }
+.mt-md { margin-top: var(--spacing-md) !important; }
+.mt-lg { margin-top: var(--spacing-lg) !important; }
+.mt-xl { margin-top: var(--spacing-xl) !important; }
+
+.p-sm { padding: var(--spacing-sm) !important; }
+.p-md { padding: var(--spacing-md) !important; }
+.p-lg { padding: var(--spacing-lg) !important; }
+.p-xl { padding: var(--spacing-xl) !important; } 
