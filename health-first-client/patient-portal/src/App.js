@@ -7,6 +7,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import theme from './theme';
 import PatientRegistration from './components/auth/PatientRegistration';
 import PatientLogin from './components/auth/PatientLogin';
+import BookAppointment from './components/booking/BookAppointment';
+import PatientDashboard from './components/dashboard/PatientDashboard';
 import './styles/patient.css';
 
 // Wrapper components to handle navigation
@@ -58,29 +60,25 @@ const LoginWrapper = () => {
     console.log('Patient login attempt:', credentials);
     
     try {
-      // Simulate API call
-      const response = await fetch('/api/v1/patient/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Handle successful login
-        localStorage.setItem('patient_token', data.token);
+      // For demo purposes, accept any email/password combination
+      // In a real app, this would be an API call
+      if (credentials.email && credentials.password) {
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Create a dummy token
+        const dummyToken = 'dummy_patient_token_' + Date.now();
+        localStorage.setItem('patient_token', dummyToken);
+        
         // Redirect to dashboard after successful login
         navigate('/dashboard');
-        return { success: true, data };
+        return { success: true, data: { token: dummyToken } };
       } else {
-        const errorData = await response.json();
-        return { success: false, errors: errorData.errors, message: errorData.message };
+        return { success: false, message: 'Email and password are required' };
       }
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, message: 'Network error. Please check your connection.' };
+      return { success: false, message: 'An unexpected error occurred. Please try again.' };
     }
   };
 
@@ -94,6 +92,17 @@ const LoginWrapper = () => {
       onNavigateToRegister={handleNavigateToRegister}
     />
   );
+};
+
+// Simple auth check component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('patient_token');
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -111,10 +120,22 @@ function App() {
               <Route path="/register" element={<RegistrationWrapper />} />
               <Route path="/login" element={<LoginWrapper />} />
 
-              {/* Dashboard Routes (to be implemented) */}
-              <Route path="/dashboard" element={<div>Patient Dashboard (Coming Soon)</div>} />
-              <Route path="/book-appointment" element={<div>Book Appointment (Coming Soon)</div>} />
-              <Route path="/appointments" element={<div>My Appointments (Coming Soon)</div>} />
+              {/* Protected Dashboard Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <PatientDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/book-appointment" element={
+                <ProtectedRoute>
+                  <BookAppointment />
+                </ProtectedRoute>
+              } />
+              <Route path="/appointments" element={
+                <ProtectedRoute>
+                  <div>My Appointments (Coming Soon)</div>
+                </ProtectedRoute>
+              } />
 
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/register" replace />} />

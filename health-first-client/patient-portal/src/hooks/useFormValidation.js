@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const useFormValidation = (initialValues = {}, validationRules = {}, options = {}) => {
   const {
@@ -17,15 +17,15 @@ const useFormValidation = (initialValues = {}, validationRules = {}, options = {
   const [submitCount, setSubmitCount] = useState(0);
 
   // Debounce timer ref
-  const debounceTimers = useState(new Map())[0];
+  const debounceTimers = useRef(new Map());
 
   // Clear debounce timer for a field
   const clearDebounceTimer = useCallback((fieldName) => {
-    if (debounceTimers.has(fieldName)) {
-      clearTimeout(debounceTimers.get(fieldName));
-      debounceTimers.delete(fieldName);
+    if (debounceTimers.current.has(fieldName)) {
+      clearTimeout(debounceTimers.current.get(fieldName));
+      debounceTimers.current.delete(fieldName);
     }
-  }, [debounceTimers]);
+  }, []);
 
   // Validate a single field
   const validateField = useCallback((fieldName, value, allValues = values) => {
@@ -101,9 +101,9 @@ const useFormValidation = (initialValues = {}, validationRules = {}, options = {
         }
       }, debounceMs);
 
-      debounceTimers.set(name, timer);
+      debounceTimers.current.set(name, timer);
     }
-  }, [errors, validateOnChange, touched, validateField, clearDebounceTimer, debounceMs, debounceTimers]);
+  }, [errors, validateOnChange, touched, validateField, clearDebounceTimer, debounceMs]);
 
   // Handle field blur event
   const handleBlur = useCallback((event) => {
@@ -186,9 +186,9 @@ const useFormValidation = (initialValues = {}, validationRules = {}, options = {
     setSubmitCount(0);
     
     // Clear all debounce timers
-    debounceTimers.forEach(timer => clearTimeout(timer));
-    debounceTimers.clear();
-  }, [initialValues, debounceTimers]);
+    debounceTimers.current.forEach(timer => clearTimeout(timer));
+    debounceTimers.current.clear();
+  }, [initialValues]);
 
   // Handle form submission
   const handleSubmit = useCallback((onSubmit) => {
