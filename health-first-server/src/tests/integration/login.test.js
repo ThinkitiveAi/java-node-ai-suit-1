@@ -91,7 +91,9 @@ describe('Provider Login API', () => {
       password_hash,
       verification_status: 'pending',
       is_active: true,
-      email: 'unverified@example.com'
+      email: 'unverified@example.com',
+      phone_number: '+12345678902',
+      license_number: 'MD123457'
     });
 
     const res = await request(app)
@@ -114,7 +116,9 @@ describe('Provider Login API', () => {
       password_hash,
       verification_status: 'verified',
       is_active: false,
-      email: 'suspended@example.com'
+      email: 'suspended@example.com',
+      phone_number: '+12345678903',
+      license_number: 'MD123458'
     });
 
     const res = await request(app)

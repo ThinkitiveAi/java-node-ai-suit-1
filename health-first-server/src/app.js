@@ -5,6 +5,8 @@ const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 const providerRoutes = require('./routes/providerRoutes');
 const patientRoutes = require('./routes/patientRoutes');
+const availabilityRoutes = require('./routes/availabilityRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/v1/provider', providerRoutes);
 app.use('/api/v1/patient', patientRoutes);
+app.use('/api/v1', availabilityRoutes);
+app.use('/api/v1', appointmentRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

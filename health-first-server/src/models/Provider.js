@@ -87,7 +87,6 @@ const providerSchema = new Schema({
   password_hash: {
     type: String,
     required: true,
-    minlength: 8,
     select: false
   },
   specialization: {

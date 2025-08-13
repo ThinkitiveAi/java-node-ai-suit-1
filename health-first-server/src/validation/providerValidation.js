@@ -3,7 +3,7 @@ const { SPECIALIZATIONS, US_STATES, SUPPORTED_LANGUAGES, ACCREDITED_MEDICAL_SCHO
 
 const passwordComplexity = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]|;:,.<>?]).{8,}$/;
 const namePattern = /^[a-zA-Z\s'-]+$/;
-const phonePattern = /^\+?[1-9]\d{1,14}$/;
+const phonePattern = /^\+[1-9]\d{9,14}$/;
 const licensePattern = /^[A-Z0-9]+$/;
 const zipPattern = /^\d{5}(-\d{4})?$/;
 const emailPattern = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
@@ -19,7 +19,7 @@ const providerRegistrationSchema = Joi.object({
   license_number: Joi.string().trim().uppercase().min(6).max(20).pattern(licensePattern).required(),
   years_of_experience: Joi.number().integer().min(0).max(50).required(),
   clinic_address: Joi.object({
-    street: Joi.string().trim().max(200).required(),
+    street: Joi.string().trim().min(1).max(200).required(),
     city: Joi.string().trim().max(100).pattern(namePattern).required(),
     state: Joi.string().trim().uppercase().valid(...US_STATES).required(),
     zip: Joi.string().trim().pattern(zipPattern).required()

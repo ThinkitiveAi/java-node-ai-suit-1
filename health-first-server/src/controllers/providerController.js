@@ -112,25 +112,14 @@ const registerProvider = async (req, res, next) => {
       createdAt: Date.now()
     });
 
-    // 6. Send verification email (temporarily disabled for testing)
+    // 6. Send verification email (mocked in tests)
     const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify?token=${verificationToken}&email=${encodeURIComponent(data.email)}`;
-    // TODO: Uncomment when SMTP is configured
-    /*
     await transporter.sendMail({
-      from: process.env.SMTP_USER,
+      from: process.env.SMTP_USER || 'no-reply@test.local',
       to: data.email,
       subject: 'Complete Your Provider Registration',
-      html: `<p>Dear Dr. ${data.first_name} ${data.last_name},</p>
-<p>Thank you for registering with our healthcare platform.</p>
-<p>Please verify your email address by clicking the link below:</p>
-<p><a href="${verificationLink}">${verificationLink}</a></p>
-<p>Next steps:<br>1. Verify your email address<br>2. Upload required documents (license, certifications)<br>3. Complete profile information<br>4. Wait for admin approval</p>
-<p>If you didn't create this account, please ignore this email.</p>
-<p>Best regards,<br>Healthcare Platform Team</p>`
+      html: `<p>Verify your email: <a href="${verificationLink}">${verificationLink}</a></p>`
     });
-    */
-    console.log('Verification email would be sent to:', data.email);
-    console.log('Verification link:', verificationLink);
 
     // 7. Success response
     return res.status(201).json({
