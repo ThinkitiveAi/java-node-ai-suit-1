@@ -9,7 +9,8 @@ import {
   Paper,
   Link,
   Alert,
-  Divider
+  Divider,
+  TextField
 } from '@mui/material';
 import {
   Login as LoginIcon,
@@ -18,15 +19,7 @@ import {
   LocalHospital as HealthIcon,
   Security as SecurityIcon
 } from '@mui/icons-material';
-import FormField from '../shared/FormField';
 import LoadingSpinner from '../shared/LoadingSpinner';
-import ValidationMessage from '../shared/ValidationMessage';
-import useFormValidation from '../../hooks/useFormValidation';
-import {
-  validateEmail,
-  validatePassword,
-  sanitizeInput
-} from '../../utils/patientValidation';
 
 const PatientLogin = ({
   onLogin,
@@ -37,81 +30,74 @@ const PatientLogin = ({
   ...props
 }) => {
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-
-  // Initial form values
-  const initialValues = {
+  const [formData, setFormData] = useState({
     email: '',
     password: ''
-  };
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Validation rules
-  const validationRules = {
-    email: (value) => validateEmail(sanitizeInput(value)),
-    password: (value) => {
-      if (!value) return 'Password is required';
-      return null;
+  // Handle input changes
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (formErrors[field]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
     }
   };
 
-  // Validation options
-  const validationOptions = {
-    validateOnBlur: true,
-    validateOnChange: false,
-    validateOnSubmit: true,
-    debounceMs: 300
+  // Simple validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!formData.password) {
+      errors.password = 'Password is required';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const {
-    values,
-    errors,
-    touched,
-    isSubmitting,
-    isValid,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    getFieldProps,
-    setFieldError,
-    clearErrors
-  } = useFormValidation(initialValues, validationRules, validationOptions);
-
   // Handle form submission
-  const onSubmit = async (formData) => {
-    try {
-      // Sanitize inputs
-      const sanitizedData = {
-        email: sanitizeInput(formData.email).toLowerCase().trim(),
-        password: formData.password // Don't sanitize password to preserve special characters
-      };
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
 
-      const result = await onLogin(sanitizedData);
+    setIsSubmitting(true);
+    
+    try {
+      const result = await onLogin(formData);
       
       if (result && result.success) {
         setShowSuccessMessage(true);
-        return { success: true };
+        // Redirect after a short delay
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1500);
       } else if (result && result.errors) {
-        // Handle server-side validation errors
-        Object.keys(result.errors).forEach(field => {
-          setFieldError(field, result.errors[field]);
-        });
-        return { success: false, errors: result.errors };
-      } else {
-        return { success: false, error: result?.message || 'Login failed' };
+        setFormErrors(result.errors);
       }
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: 'An unexpected error occurred. Please try again.' };
+    } finally {
+      setIsSubmitting(false);
     }
-  };
-
-  const handleFormSubmit = handleSubmit(onSubmit);
-
-  // Handle field change with error clearing
-  const handleFieldChange = (event) => {
-    if (error) {
-      clearErrors();
-    }
-    handleChange(event);
   };
 
   // Handle register navigation
@@ -165,12 +151,9 @@ const PatientLogin = ({
         <CardContent sx={{ p: 4 }}>
           {/* Success Message */}
           {showSuccessMessage && (
-            <ValidationMessage
-              type="success"
-              message="Login successful! Redirecting to your dashboard..."
-              variant="alert"
-              sx={{ mb: 3 }}
-            />
+            <Alert severity="success" sx={{ mb: 3 }}>
+              Login successful! Redirecting to your dashboard...
+            </Alert>
           )}
 
           {/* Global Error Message */}
@@ -178,7 +161,7 @@ const PatientLogin = ({
             <Alert 
               severity="error" 
               sx={{ mb: 3 }}
-              onClose={() => clearErrors()}
+              onClose={() => setFormErrors({})}
             >
               {error}
             </Alert>
@@ -207,15 +190,17 @@ const PatientLogin = ({
                 <Typography variant="h6">Email Address</Typography>
               </Box>
               
-              <FormField
+              <TextField
+                fullWidth
                 type="email"
                 label="Email Address"
                 placeholder="Enter your email address"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                error={!!formErrors.email}
+                helperText={formErrors.email || ''}
                 required
                 autoComplete="email"
-                {...getFieldProps('email')}
-                onChange={handleFieldChange}
-                onBlur={handleBlur}
                 disabled={isSubmitting || loading}
                 data-testid="patient-login-email"
               />
@@ -228,15 +213,17 @@ const PatientLogin = ({
                 <Typography variant="h6">Password</Typography>
               </Box>
               
-              <FormField
+              <TextField
+                fullWidth
                 type="password"
                 label="Password"
                 placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                error={!!formErrors.password}
+                helperText={formErrors.password || ''}
                 required
                 autoComplete="current-password"
-                {...getFieldProps('password')}
-                onChange={handleFieldChange}
-                onBlur={handleBlur}
                 disabled={isSubmitting || loading}
                 data-testid="patient-login-password"
               />
@@ -248,7 +235,7 @@ const PatientLogin = ({
               fullWidth
               variant="contained"
               size="large"
-              disabled={!isValid || isSubmitting || loading}
+              disabled={isSubmitting || loading}
               startIcon={
                 isSubmitting || loading ? null : <LoginIcon />
               }
